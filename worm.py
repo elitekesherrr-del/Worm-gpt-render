@@ -39,9 +39,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────
-# BOT CONFIGURATION & ADMIN SECRETS
+# BOT CONFIGURATION & ADMIN SECRETS (Token pulled from Environment)
 # ─────────────────────────────────────────
-BOT_TOKEN = "8716586303:AAE1nuOa3xPNLcEF-TYaLFgwcBCOWlCrnC0"
+BOT_TOKEN = os.environ.get("BOT_TOKEN")  # Ab ye Render ke Environment Variables se load hoga
 SECRET_CODE = "FDJGSLGSGSFJS"  # Admin panel secret key
 
 BOT_NAME = "Worm GPT AI"
@@ -60,7 +60,7 @@ CHANNELS = [
 ]
 
 # ─────────────────────────────────────────
-# USER DATA PERSISTENCE (For Admin Panel)
+# USER DATA PERSISTENCE
 # ─────────────────────────────────────────
 USER_DATA_FILE = "users.json"
 
@@ -123,7 +123,7 @@ def run_web():
     app_web.run(host='0.0.0.0', port=port)
 
 # ─────────────────────────────────────────
-# CORE FUNCTIONS (SHA256, UID, TOKEN)
+# CORE FUNCTIONS
 # ─────────────────────────────────────────
 def sha256(text: str):
     return hashlib.sha256(text.encode()).hexdigest()
@@ -161,9 +161,6 @@ def get_join_keyboard(missing_channels):
     keyboard.append([InlineKeyboardButton("✅ Verify Access", callback_data="verify_join")])
     return InlineKeyboardMarkup(keyboard)
 
-# ─────────────────────────────────────────
-# MENU KEYBOARD
-# ─────────────────────────────────────────
 def reply_menu():
     keyboard = [
         ["🧠 Clear Memory"],
@@ -471,7 +468,6 @@ async def set_commands(app):
 def main():
     print("☠️ Worm GPT AI Starting...")
     
-    # Threading for Render web service to prevent sleeping
     threading.Thread(target=run_web, daemon=True).start()
 
     app = Application.builder().token(BOT_TOKEN).build()
@@ -481,7 +477,6 @@ def main():
     app.add_handler(CallbackQueryHandler(verify_join, pattern="^verify_join$"))
     app.add_handler(CallbackQueryHandler(admin_callback, pattern="^admin_"))
     
-    # Master message handler to handle Broadcasts, Admin panel, and AI chat without overlap
     app.add_handler(MessageHandler(filters.ALL & ~filters.COMMAND, handle_message))
 
     app.post_init = set_commands
@@ -493,4 +488,4 @@ def main():
 # ─────────────────────────────────────────
 if __name__ == "__main__":
     main()
-  
+    
